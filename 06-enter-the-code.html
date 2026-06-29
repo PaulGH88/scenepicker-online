@@ -578,7 +578,7 @@ function pickFromSearch(i,file){
 }
 function onNoteInput(i,v){ setNote(i,v); searchLib(i); }
 
-const GEN_ENDPOINT = (window.GEN_ENDPOINT_OVERRIDE || "http://localhost:8765");
+const GEN_ENDPOINT = (window.GEN_ENDPOINT_OVERRIDE || "https://aogelzypxbhtytqmheiq.supabase.co/functions/v1/scenepicker-gen");
 const HOUSE_STYLE = "cinematic, warm golden tones, soft natural grain, shallow depth of field, candid, gentle bokeh, beautiful natural light";
 function genSeed(i){
   const row=document.getElementById('row'+i);
@@ -621,7 +621,7 @@ function genThree(i){
    .then(r=>r.json()).then(d=>{
      if(!d.images||!d.images.length){ res.innerHTML="<div class='nores'>The generator returned nothing - try a different description.</div>"; return; }
      const cards=d.images.map(im=>{
-       const u=GEN_ENDPOINT+im.url;
+       const u=(""+(im.url||"")).indexOf("http")===0?im.url:GEN_ENDPOINT+im.url;  // hosted returns absolute URLs; local server returns a relative path
        const cap=(im.prompt||prompt).slice(0,140).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
        const pu=u.replace(/'/g,"\\'");
        const pp=(im.path||"").replace(/\\/g,'\\\\').replace(/'/g,"\\'");
@@ -629,7 +629,7 @@ function genThree(i){
      }).join("");
      res.innerHTML="<div class='genwrap'><div class='genhdr'>Tap one to make it YOUR PICK - it joins as a created shot.</div><div class='genrow'>"+cards+"</div></div>";
    }).catch(e=>{
-     res.innerHTML="<div class='nores'>Could not reach the image generator. Start it first: <code>python gen_server.py</code> in the boise-album folder, then tap Create 3 again. ("+e+")</div>";
+     res.innerHTML="<div class='nores'>The image generator didn't respond just now - give it a moment and tap Create 3 again. ("+e+")</div>";
    });
 }
 
